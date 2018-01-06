@@ -23,7 +23,7 @@ def digrootlist(n):
     return root_list
 
 def file(n):
-    f = open('multdigroot.csv', 'w')
+    f = open('multdigroot.csv', 'wb')
     with f:
         writer = csv.writer(f)
         for k in digrootlist(n):
@@ -31,7 +31,7 @@ def file(n):
 
 def main():
     number = input("Find digital roots up to which number?")
-    print digrootlist(number)
+
     file(number)
 
 if __name__ == '__main__':
