@@ -21,6 +21,8 @@ def treasure_room():
             exit(0)
         else:
             print "You can't do that. At least not that way."
+            print "What do you do?"
+            action = raw_input("> ")
 
 def nothing_room():
     print "There is nothing in this room."
@@ -43,10 +45,14 @@ def nothing_room():
                     exit(0)
                 else: 
                     print "You can't do that. At least not that way."
+                    print "What do you do?"
+                    action2 = raw_input("> ")
         elif "give up" in action:
             exit(0)
         else:
             print "You can't do that. At least not that way."
+            print "What do you do?"
+            action = raw_input("> ")
 
 def sword_room():
     print "You enter a room with a swordsman."
@@ -106,6 +112,8 @@ def bear_room():
             nothing_room()
         else: 
             print "You can't do that. At least not in that way."
+            print "What do you do?"
+            action = raw_input("> ")
 
 def start_room():
     print "You are in a dark room."
@@ -123,6 +131,8 @@ def start_room():
             bear_room()
         else:
             print "You can't do that. At least not in that way."
+            print "What do you do?"
+            door = raw_input("> ")
 
 def dead(why):
     print why, "You died."
