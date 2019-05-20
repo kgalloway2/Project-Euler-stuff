@@ -12,7 +12,7 @@ class Room(object):
         self.action_function = action_function
 
     def go(self, direction):
-        self.action_function(direction, self.paths)
+        return self.action_function(direction, self.paths)
         
     def add_paths(self, paths):
         self.paths.update(paths)
@@ -42,8 +42,8 @@ Armory and about to pull a weapon to blast you.
 central_corridor_action)
 
 def armory_action(direction, paths):
-        action = paths.get(direction, None)
-        pass_code = paths.pass_code[0]
+        pass_code = "%d%d%d" % (randint(0,9), randint(0,9), randint(0,9))
+        action = direction
         tries = 0
         while action != pass_code:
             tries +=1
@@ -51,7 +51,7 @@ def armory_action(direction, paths):
                 return generic_death('armory')
             else:
                 print "WRONG! Try again."
-                action = raw_input("> ")
+                action = raw_input("Password: ")
             
         return the_bridge
 
@@ -177,11 +177,9 @@ the_bridge.add_paths({
     'slowly place the bomb': escape_pod
 })
 
-pass_code = "%d%d%d" % (randint(0, 9), randint(0, 9), randint(0, 9))
-
 laser_weapon_armory.add_paths({
-    pass_code: (pass_code, the_bridge),
-    '*': generic_death('armory')
+    'bridge': the_bridge,
+    'wrong': generic_death('armory')
 })
 
 central_corridor.add_paths({
@@ -191,3 +189,8 @@ central_corridor.add_paths({
 })
 
 START = central_corridor
+
+def test_function():
+    inputs = raw_input()
+    output = inputs + 'done'
+    return output

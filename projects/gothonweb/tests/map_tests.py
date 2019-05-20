@@ -1,5 +1,7 @@
 from nose.tools import *
 from gothonweb.map import *
+from mock import patch
+from mock import MagicMock
 
 def test_room():
     gold = Room("GoldRoom",
@@ -51,5 +53,7 @@ def test_gothon_game_map():
     ])
     room = START.go('tell a joke')
     assert_equal(room, laser_weapon_armory)
-    assert_equal(room.go(pass_code), the_bridge)
-    assert_equal(room.go('0221'), generic_death('armory'))
+
+    with patch('builtins.input', return_value="123") as _raw_input:
+       assert test_function() == "123done"
+    #assert_equal(room.go('0221'), generic_death('armory'))
