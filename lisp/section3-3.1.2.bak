@@ -1,0 +1,68 @@
+#lang racket
+
+(define ogbalance 100)
+
+(define (withdraw amount)
+  (if (>= ogbalance amount)
+      (begin (set! ogbalance (- ogbalance amount))
+             ogbalance)
+      "Insufficient funds"))
+
+(define new-withdraw
+  (let ((balance2 100))
+    (lambda (amount)
+      (if (>= balance2 amount)
+          (begin (set! balance2 (- balance2 amount))
+                 balance2)
+          "Insufficient funds"))))
+
+(define (make-withdraw balance)
+  (lambda (amount)
+    (if (>= balance amount)
+        (begin (set! balance (- balance amount))
+               balance)
+        "Insufficient funds")))
+
+(define W1 (make-withdraw 100))
+(define W2 (make-withdraw 100))
+
+(define (make-account balance password)
+  (let ((incorrect-attempts 0))
+    (define (withdraw amount)
+      (if (>= balance amount)
+          (begin (set! balance (- balance amount))
+                 balance)
+          "Insufficient funds"))
+    (define (deposit amount)
+      (set! balance (+ balance amount))
+      balance)
+    (define call-the-cops "Called the cops")
+    (define (incorrect-password m)
+      (set! incorrect-attempts (+ incorrect-attempts 1))
+      (if (= incorrect-attempts 7)
+          call-the-cops
+          "Incorrect password"))
+    (define (dispatch input-password m)
+      (if (eq? password input-password)
+          (begin (set! incorrect-attempts 0)
+                 (cond ((eq? m 'withdraw) withdraw)
+                       ((eq? m 'deposit) deposit)
+                       (else (error "Unknown request -- MAKE-ACCOUNT"
+                                    m))))
+          incorrect-password))
+    dispatch))
+
+(define (make-accumulator initial)
+  (lambda (increment)
+    (begin (set! initial (+ initial increment))
+           initial)))
+
+(define (make-monitored f)
+  (let ((count 0))
+    (lambda (input-f)
+        (cond ((eq? input-f 'reset-counter) (set! count 0))
+              ((eq? input-f 'how-many-calls?) count)
+              (else (begin (set! count (+ count 1))
+                           (display (f input-f))
+                           (newline)
+                           count))))))

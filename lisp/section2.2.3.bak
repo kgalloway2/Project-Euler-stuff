@@ -1,0 +1,186 @@
+#lang racket
+
+(define nil '())
+
+(define (square x) (* x x))
+
+(define (even? m) (= (remainder m 2) 0))
+
+(define (odd? m) (= (remainder m 2) 1))
+
+(define (inc n) (+ n 1))
+
+(define (fib k)
+  (cond ((= k 0) 0)
+        ((= k 1) 1)
+        (else (+ (fib (- k 1)) (fib (- k 2))))))
+
+(define (sum-odd-squares tree)
+  (cond ((null tree) 0)
+        ((not (pair? tree))
+         (if (odd? tree) (square tree) 0))
+        (else (+ (sum-odd-squares (car tree))
+                 (sum-odd-squares (cdr tree))))))
+
+(define (even-fibs n)
+  (define (next k)
+    (if (> k n)
+        '()
+        (let ((f (fib k)))
+          (if (even? f)
+              (cons f (next (+ k 1)))
+              (next (+ k 1))))))
+  (next 0))
+
+(define (filter predicate sequence)
+  (cond ((null? sequence) '())
+        ((predicate (car sequence))
+         (cons (car sequence)
+               (filter predicate (cdr sequence))))
+        (else (filter predicate (cdr sequence)))))
+
+(define (accumulate op initial sequence)
+  (if (null? sequence)
+      initial
+      (op (car sequence)
+          (accumulate op initial (cdr sequence)))))
+
+(define (enumerate-interval low high)
+  (if (> low high)
+      '()
+      (cons low (enumerate-interval (+ low 1) high))))
+
+(define (enumerate-tree tree)
+  (cond ((null? tree) tree)
+        ((not (pair? tree)) (list tree))
+        (else (append (enumerate-tree (car tree))
+                      (enumerate-tree (cdr tree))))))
+
+(define (fold-left op init seq)
+  (define (iter result rest)
+    (if (null? rest)
+        result
+        (iter (op result (car rest))
+                  (cdr rest))))
+  (iter init seq))
+
+(define (reverse sequence)
+  (accumulate (lambda (x y)
+                (enumerate-tree (list y x)))
+              nil sequence))
+
+(define (reverse2 sequence)
+  (fold-left (lambda (x y)
+               (enumerate-tree (list y x)))
+             nil sequence))
+
+(define (sum-odd-squares2 tree)
+  (accumulate +
+              0
+              (map square
+                   (filter odd?
+                           (enumerate-tree tree)))))
+
+(define (even-fibs2 n)
+  (accumulate cons
+              '()
+              (filter even?
+                      (map fib
+                           (enumerate-interval 0 n)))))
+
+(define (list-fib-squares n)
+  (accumulate cons
+              '()
+              (map square
+                   (map fib
+                        (enumerate-interval 0 n)))))
+
+(define (product-of-squares-of-odd-elements sequence)
+  (accumulate *
+              1
+              (map square
+                   (filter odd? sequence))))
+
+(define (map2 p sequence)
+  (accumulate (lambda (x y)
+                (cons (if (not (pair? x))
+                          (p x)
+                          (map p x))
+                      y))
+              '() sequence))
+
+(define (append seq1 seq2)
+  (accumulate cons seq2 seq1))
+
+(define (length sequence)
+  (accumulate (lambda (x y)
+                (+ (if (not (pair? x))
+                       1
+                       (length sequence))
+                   y))
+              0 sequence))
+
+(define (horner-eval x coefficient-sequence)
+  (accumulate (lambda (this-coeff higher-terms)
+                (if (not (pair? this-coeff))
+                    (+ this-coeff (* higher-terms x))
+                    (horner-eval x (cdr coefficient-sequence))))
+              0
+              coefficient-sequence))
+
+(define (count-leavesfail t)
+  (accumulate + 0 (map (lambda (x)
+                         (if (pair? x)
+                             (count-leaves x)
+                             1))
+                       t)))
+
+(define s (list (list 1 2 3) (list 4 5 6) (list 7 8 9) (list 10 11 12)))
+
+(define s1 (list (list 1 2) (list 3 4)))
+
+(define (count-leaves tree)
+  (cond ((null? tree) 0)
+        ((not (pair? tree)) 1)
+        (else (+ (count-leaves (car tree))
+                 (count-leaves (cdr tree))))))
+
+(define (accumulate-n op init seqs)
+  (if (null? (car seqs))
+      '()
+      (cons (accumulate op init (if (pair? (car seqs))
+                                    (map car seqs)
+                                    seqs))
+            (accumulate-n op init (if (pair? (car seqs))
+                                      (if (pair? (map cdr seqs))
+                                          (if (= (count-leaves (car (map cdr seqs))) 1)
+                                              (map car (map cdr seqs))
+                                              (map cdr seqs))
+                                          seqs)
+                                      (list '()))))))
+
+(define m1 (list (list 1 4 7)
+                 (list 2 5 8)
+                 (list 3 6 9)))
+
+(define m2 (list (list 1 2)
+                 (list 3 4)))
+
+(define m3 (list (list 5 6)
+                 (list 7 8)))
+
+(define (dot-product v w)
+  (accumulate + 0 (map * v w)))
+
+(define (matrix-*-vector m v)
+  (map (lambda (r) (dot-product r v))
+       m))
+
+(define (transpose mat)
+  (accumulate-n cons '() mat))
+
+(define (matrix-*-matrix m n)
+  (let ((cols (transpose n)))
+    (map (lambda (m-row)
+           (matrix-*-vector cols m-row))
+         m)))
